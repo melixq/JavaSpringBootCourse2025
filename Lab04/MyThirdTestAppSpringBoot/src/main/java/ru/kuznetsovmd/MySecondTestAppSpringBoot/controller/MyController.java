@@ -7,17 +7,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kuznetsovmd.MySecondTestAppSpringBoot.exception.UnsupportedCodeException;
 import ru.kuznetsovmd.MySecondTestAppSpringBoot.exception.ValidationFailedException;
 import ru.kuznetsovmd.MySecondTestAppSpringBoot.model.*;
-import ru.kuznetsovmd.MySecondTestAppSpringBoot.service.ModifyRequestService;
 import ru.kuznetsovmd.MySecondTestAppSpringBoot.service.ModifyResponseService;
 import ru.kuznetsovmd.MySecondTestAppSpringBoot.service.ValidationService;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 
 
 @Slf4j
@@ -25,29 +27,40 @@ import java.time.Instant;
 public class MyController {
     private final ValidationService validationService;
     private final ModifyResponseService modifyResponseService;
-    private final ModifyRequestService modifyRequestService;
 
     @Autowired
-    public MyController(
-            ValidationService validationService,
-            @Qualifier(value = "ModifySystemTimeResponseService") ModifyResponseService modifyResponseService,
-            @Qualifier(value = "ModifySystemNameRequestService") ModifyRequestService modifyRequestService
-    ) {
+    public MyController(ValidationService validationService,
+                        @Qualifier(value = "ModifySystemTimeResponseService") ModifyResponseService modifyResponseService) {
         this.validationService = validationService;
         this.modifyResponseService = modifyResponseService;
-        this.modifyRequestService = modifyRequestService;
     }
 
     @PostMapping(value = "/feedback")
-    public ResponseEntity<Response> feedback(
-            @Valid @RequestBody Request request,
-            BindingResult bindingResult
-    ) {
-        String receiveTime = Instant.now().toString();
-        request.setRequestReceiveTime(receiveTime);
+    public ResponseEntity<Response> feedback(@Valid @RequestBody Request request, BindingResult bindingResult) {
+        Instant service2ReceiveTime = Instant.now();
 
-        log.info("SERVICE 1: Received request: {}", request);
-        log.info("RECEIVED AT: {}", receiveTime);
+        log.info("=== TIME MEASUREMENT ===");
+        log.info("SERVICE 2 RECEIVED REQUEST AT: {}", service2ReceiveTime);
+
+        // Проверяем, установлено ли время получения Сервисом 1
+        if (request.getRequestReceiveTime() != null && !request.getRequestReceiveTime().isEmpty()) {
+            try {
+                // Парсим время получения Сервисом 1
+                Instant service1ReceiveTime = Instant.parse(request.getRequestReceiveTime());
+                // Рассчитываем разницу
+                Duration timeDifference = Duration.between(service1ReceiveTime, service2ReceiveTime);
+
+                log.info("REQUEST получен Сервисом № 1 в: {}", service1ReceiveTime);
+                log.info("REQUEST получен Сервисом № 2 в: {}", service2ReceiveTime);
+                log.info("Разница: {} миллисекунд", timeDifference.toMillis());
+
+            } catch (DateTimeParseException e) {
+                log.error("Error parsing request receive time: {}", e.getMessage());
+            }
+        } else {
+            log.warn("Request receive time not provided by Service 1");
+        }
+        log.info("=== END TIME MEASUREMENT ===");
 
         var response = Response.builder()
                 .uid(request.getUid())
@@ -103,7 +116,7 @@ public class MyController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         modifyResponseService.modify(response);
-        modifyRequestService.modify(request);
+
         log.info("Response updated after modify response: {}", response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

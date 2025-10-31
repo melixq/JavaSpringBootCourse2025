@@ -1,0 +1,25 @@
+meta {
+  name: ValidFeedback2 copy
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8082/feedback
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "uid": "valid-uid-123",
+    "operationUid": "valid-op-456",
+    "systemTime": "2025-10-02T16:23:11.112Z",
+    "systemName": "Enterprise Resource Planning",
+    "source": "API",
+    "communicationId": 1000,
+    "templateId": 5,
+    "productCode": 100,
+    "smsCode": 123
+  }
+}
