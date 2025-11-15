@@ -1,0 +1,30 @@
+meta {
+  name: ManagerFeedback
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8082/feedback
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "uid": "1",
+    "operationUid": "valid-op-uid",
+    "systemTime": "2025-10-02T16:23:11.112Z",
+    "systemName": "Enterprise Resource Planning",
+    "source": "API",
+    "communicationId": 1000,
+    "templateId": 5,
+    "productCode": 100,
+    "smsCode": 123,
+    "salary": 100000.00,
+    "workDays": 243,
+    "bonus": 2.0,
+    "position": "HR",
+    "year": 2025
+  }
+}

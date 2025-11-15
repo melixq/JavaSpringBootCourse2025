@@ -1,0 +1,30 @@
+meta {
+  name: BadRequest
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8082/feedback
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "uid": "",
+    "operationUid": "valid-op-uid",
+    "systemTime": "2025-10-02T16:23:11.112Z",
+    "systemName": "Enterprise Resource Planning",
+    "source": "API",
+    "communicationId": 1,
+    "templateId": 5,
+    "productCode": 100,
+    "smsCode": 123,
+    "salary": 100000.00,
+    "workDays": 243,
+    "bonus": 2.0,
+    "position": "HR",
+    "year": 2025
+  }
+}
