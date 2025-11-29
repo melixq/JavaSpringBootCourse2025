@@ -1,0 +1,20 @@
+meta {
+  name: Update Single
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8080/api/v1/disciplines/3
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Программирование на языке C#",
+    "description": "Продолжение дисциплины, получение продвинутых навыков работы с языком C#, фреймворком .NET",
+    "credits": 3,
+    "semester": 4
+  }
+}
